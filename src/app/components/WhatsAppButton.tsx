@@ -20,9 +20,49 @@ const WhatsAppChatBot: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string; time: string }[]>([]);
 
-  // Inicializar mensagens apenas no cliente
-  useEffect(() => {
-    if (mounted) {
+  // Função para buscar mensagem inicial do webhook
+  const fetchInitialMessage = async () => {
+    try {
+      console.log('🔄 [Chat] Buscando mensagem inicial...');
+      
+      const initialPayload = {
+        message: "START_CHAT",
+        selectedPlan: 'Não selecionado',
+        timestamp: new Date().toISOString(),
+        chatId: `chat_${Date.now()}`,
+        source: 'website_komprax',
+        isInitial: true
+      };
+
+      const response = await fetch('https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'User-Agent': 'KompraX-Chat/1.0'
+        },
+        body: JSON.stringify(initialPayload)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ [Chat] Mensagem inicial recebida:', result);
+        
+        // Se tem resposta do webhook, usar ela, senão usar mensagem padrão
+        const initialMessage = result.response || result.message || "Olá! 😊 Sou a assistente virtual da Obian Sistemas.<br/><br/>Escolha um plano abaixo para começarmos nossa conversa!";
+        
+        setChatMessages([
+          {
+            sender: "bot",
+            text: initialMessage,
+            time: ""
+          }
+        ]);
+      } else {
+        throw new Error(`Webhook error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ [Chat] Erro ao buscar mensagem inicial:', error);
+      // Fallback para mensagem padrão
       setChatMessages([
         {
           sender: "bot",
@@ -31,9 +71,14 @@ const WhatsAppChatBot: React.FC = () => {
         }
       ]);
     }
+  };
+
+  // Inicializar mensagens apenas no cliente
+  useEffect(() => {
+    if (mounted) {
+      fetchInitialMessage();
+    }
   }, [mounted]);
-
-
 
   useEffect(() => {
     setMounted(true);
