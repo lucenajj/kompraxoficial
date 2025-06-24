@@ -11,7 +11,6 @@ import logo3 from '../../../public/img/logo3.png';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('/');
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [showPromo, setShowPromo] = useState<null | boolean>(null);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [promoActive, setPromoActive] = useState(false);
@@ -75,20 +74,10 @@ export default function Navbar() {
   }, [timeLeft]);
 
   useEffect(() => {
-    const handleScroll = () => setScrollPosition(window.scrollY);
-    
     // Inicializar apenas no cliente
     if (typeof window !== 'undefined') {
       setCurrentPage(window.location.pathname);
-      setScrollPosition(window.scrollY); // Inicializar scrollPosition
-      window.addEventListener('scroll', handleScroll);
     }
-    
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', handleScroll);
-      }
-    };
   }, []);
 
   useEffect(() => {
