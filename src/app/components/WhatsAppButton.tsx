@@ -111,7 +111,7 @@ const WhatsAppChatBot: React.FC = () => {
     }, 2000);
   };
 
-  // Nova função para chat livre com IA
+  // Função para chat livre com IA usando trigger específico
   const handleFreeMessage = async (message: string) => {
     console.log('💬 [Chat] Mensagem livre recebida:', message);
     
@@ -132,45 +132,52 @@ const WhatsAppChatBot: React.FC = () => {
     setIsTyping(true);
 
     try {
-      // Enviar mensagem para N8N com contexto de chat
-      const payload = {
-        selectedServicePlan: selectedServicePlan || 'Não selecionado',
-        userName: 'Cliente',
-        userEnterprise: 'A definir',
-        userNumber: 'A definir',
-        userMessage: message,
-        promoActive: false,
-        chatType: 'free_conversation',
-        timestamp: new Date().toISOString()
+      // Payload específico para trigger de chat
+      const chatPayload = {
+        message: message,
+        selectedPlan: selectedServicePlan || 'Não selecionado',
+        timestamp: new Date().toISOString(),
+        chatId: `chat_${Date.now()}`,
+        source: 'website_komprax'
       };
 
-      console.log('🤖 [Chat] Enviando para IA:', payload);
+      console.log('🤖 [Chat] Enviando para webhook de chat:', chatPayload);
 
-      const response = await fetch('/api/webhook/n8n', {
+      // Usar webhook específico para chat
+      const response = await fetch('https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 
+          'Content-Type': 'application/json',
+          'User-Agent': 'KompraX-Chat/1.0'
+        },
+        body: JSON.stringify(chatPayload)
       });
 
-      const result = await response.json();
-      console.log('🎯 [Chat] Resposta da IA:', result);
+      console.log('📡 [Chat] Status resposta:', response.status);
 
-      setIsTyping(false);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('🎯 [Chat] Resposta da IA:', result);
 
-      if (result.success && result.data.aiResponse) {
-        // Resposta da IA
-        setTimeout(() => {
-          addBotMessage(result.data.aiResponse);
-        }, 500);
+        setIsTyping(false);
+
+        // Verificar se há resposta da IA
+        if (result.response || result.message) {
+          setTimeout(() => {
+            addBotMessage(result.response || result.message);
+          }, 500);
+        } else {
+          // Resposta padrão
+          setTimeout(() => {
+            addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida sobre o ${selectedServicePlan}?`);
+          }, 500);
+        }
       } else {
-        // Resposta padrão se IA não responder
-        setTimeout(() => {
-          addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida sobre o ${selectedServicePlan}?`);
-        }, 500);
+        throw new Error(`Webhook error: ${response.status}`);
       }
 
     } catch (error) {
-      console.error('❌ [Chat] Erro no chat livre:', error);
+      console.error('❌ [Chat] Erro no chat:', error);
       setIsTyping(false);
       
       setTimeout(() => {
