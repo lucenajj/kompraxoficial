@@ -189,16 +189,30 @@ const WhatsAppChatBot: React.FC = () => {
   
 
   const handleSubmit = async () => {
+    console.log('🚀 [Chat] handleSubmit chamado!');
+    console.log('🔍 [Chat] Dados atuais:', {
+      userName,
+      userNumber,
+      selectedServicePlan,
+      userEnterprise,
+      userMessage,
+      step
+    });
+
     if (!userName || !userNumber || !selectedServicePlan) {
+      console.log('❌ [Chat] Campos obrigatórios faltando!');
       alert("Por favor, preencha todos os campos obrigatórios antes de enviar.");
       return;
     }
+
+    console.log('✅ [Chat] Validação OK, iniciando envio...');
 
     // Desabilitar botão durante envio
     const submitButton = document.querySelector('#submit-button') as HTMLButtonElement;
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = 'Enviando...';
+      console.log('🔄 [Chat] Botão desabilitado');
     }
 
     try {
@@ -530,12 +544,14 @@ const WhatsAppChatBot: React.FC = () => {
             
             <button
               id="submit-button"
-              onClick={
-                step === 2 ? handleNameSubmit :
-                step === 3 ? handleEnterpriseSubmit :
-                step === 4 ? handleNumberSubmit :
-                step === 5 ? handleSubmit : () => {}
-              }
+              onClick={(e) => {
+                console.log(`🔥 [Chat] Botão clicado! Step: ${step}`);
+                const handler = step === 2 ? handleNameSubmit :
+                              step === 3 ? handleEnterpriseSubmit :
+                              step === 4 ? handleNumberSubmit :
+                              step === 5 ? handleSubmit : () => {};
+                handler();
+              }}
               className="p-3 bg-[#598EC2] text-white rounded-md shadow-md hover:bg-[#426b9c] transition flex items-center justify-center"
             >
               <AiOutlineSend className="text-2xl" />
