@@ -7,88 +7,19 @@ import { MdClose } from "react-icons/md";
 import Image from "next/image";
 import Bot from "../../../public/img/bot.webp";
 import { AiOutlineSend } from "react-icons/ai";
-import { FaArrowRightLong } from "react-icons/fa6";
 
-import ButtonOption from "../components/chatbot-components/ButtonOption"
 
 const WhatsAppChatBot: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [selectedServicePlan, setSelectedServicePlan] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string; time: string }[]>([]);
 
-  // Função para buscar mensagem inicial do webhook
-  const fetchInitialMessage = async () => {
-    try {
-      console.log('🔄 [Chat] Buscando mensagem inicial...');
-      
-      const initialPayload = {
-        message: "START_CHAT",
-        selectedPlan: 'Não selecionado',
-        timestamp: new Date().toISOString(),
-        chatId: `chat_${Date.now()}`,
-        source: 'website_komprax',
-        isInitial: true
-      };
-
-      const response = await fetch('https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'User-Agent': 'KompraX-Chat/1.0'
-        },
-        body: JSON.stringify(initialPayload)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ [Chat] Resposta completa do N8N:', result);
-        
-        // Capturar a resposta da IA do campo "output"
-        const aiResponse = result.output || result.response || result.message;
-        
-        if (aiResponse) {
-          console.log('🤖 [Chat] Resposta da IA capturada:', aiResponse);
-          setChatMessages([
-            {
-              sender: "bot",
-              text: aiResponse,
-              time: ""
-            }
-          ]);
-        } else {
-          console.log('⚠️ [Chat] Nenhuma resposta da IA encontrada, usando fallback');
-          setChatMessages([
-            {
-              sender: "bot",
-              text: "Olá! 😊 Sou a assistente virtual da Obian Sistemas.<br/><br/>Escolha um plano abaixo para começarmos nossa conversa!",
-              time: ""
-            }
-          ]);
-        }
-      } else {
-        throw new Error(`Webhook error: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('❌ [Chat] Erro ao buscar mensagem inicial:', error);
-      // Fallback para mensagem padrão
-      setChatMessages([
-        {
-          sender: "bot",
-          text: "Olá! 😊 Sou a assistente virtual da Obian Sistemas.<br/><br/>Escolha um plano abaixo para começarmos nossa conversa!",
-          time: ""
-        }
-      ]);
-    }
-  };
-
-  // Inicializar mensagens apenas no cliente
+  // Chat começa vazio - cliente envia primeira mensagem
   useEffect(() => {
     if (mounted) {
-      fetchInitialMessage();
+      setChatMessages([]); // Chat completamente vazio
     }
   }, [mounted]);
 
@@ -120,48 +51,6 @@ const WhatsAppChatBot: React.FC = () => {
     }, 100);
   };
 
-  const handleServiceSelection = async (service: string) => {
-    console.log('🎯 [Chat] Plano selecionado:', service);
-    setSelectedServicePlan(service);
-    const timeString = getTimeString();
-    setChatMessages((prev) => [...prev, { 
-      sender: "user", 
-      text: service, 
-      time: timeString 
-    }]);
-    
-    // Enviar escolha do plano para N8N imediatamente
-    console.log('📤 [Chat] Enviando escolha do plano para N8N:', service);
-    
-    try {
-      const planPayload = {
-        selectedServicePlan: service,
-        userName: 'Cliente Interessado',
-        userEnterprise: 'A definir',
-        userNumber: 'A definir',
-        userMessage: `Cliente demonstrou interesse no ${service}`,
-        promoActive: false,
-        chatStarted: true,
-        timestamp: new Date().toISOString()
-      };
-
-      const response = await fetch('/api/webhook/n8n', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(planPayload)
-      });
-
-      if (response.ok) {
-        console.log('✅ [Chat] Escolha do plano enviada para N8N');
-      }
-    } catch (error) {
-      console.error('❌ [Chat] Erro ao enviar plano para N8N:', error);
-    }
-
-    // Mudar para modo de chat livre após selecionar plano
-    setStep(10);
-  };
-
   // Função para chat livre com IA usando trigger específico
   const handleFreeMessage = async (message: string) => {
     console.log('💬 [Chat] Mensagem livre recebida:', message);
@@ -186,7 +75,6 @@ const WhatsAppChatBot: React.FC = () => {
       // Payload específico para trigger de chat
       const chatPayload = {
         message: message,
-        selectedPlan: selectedServicePlan || 'Não selecionado',
         timestamp: new Date().toISOString(),
         chatId: `chat_${Date.now()}`,
         source: 'website_komprax'
@@ -223,7 +111,7 @@ const WhatsAppChatBot: React.FC = () => {
         } else {
           console.log('⚠️ [Chat] Nenhuma resposta da IA, usando fallback');
           setTimeout(() => {
-            addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida sobre o ${selectedServicePlan}?`);
+            addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida?`);
           }, 500);
         }
       } else {
@@ -344,50 +232,29 @@ const WhatsAppChatBot: React.FC = () => {
               )}
             </div>
 
-            {step === 1 && (
-              <div className="p-3 text-[14px] flex flex-col items-end">
-                <ButtonOption onClick={() => handleServiceSelection("Plano Básico")} text="Plano Básico" color="border-[#A3CFF5]"/>
-                <ButtonOption onClick={() => handleServiceSelection("Plano Profissional")} text="Plano Profissional" color="border-[#2264D1]"/>
-                <ButtonOption onClick={() => handleServiceSelection("Plano Premium")} text="Plano Premium" color="border-[#7D3AC1]"/>
-                <ButtonOption onClick={() => handleServiceSelection("Plano Exclusivo")} text="Plano Exclusivo" color="border-[#D4AF37]"/>
-                <a 
-                  href="#planos"
-                  className="text-center flex flex-row gap-1 items-center mb-2 py-[10px] text-gray-800 px-3 
-                    text-[14px] font-semibold
-                    transition-all duration-300 ease-in-out transform
-                   hover:text-[#4b7cbf] underline
-                    active:scale-95 cursor-pointer
-                    focus:ring-4 focus:ring-[#598EC2]/50 ">
-                  Ver opções de planos <FaArrowRightLong />
-                </a>
-              </div>
-            )}
-
-            {/* Chat livre com IA - Step 10 */}
-            {step === 10 && (
-              <div className="absolute bottom-0 rounded-b-md left-0 right-0 p-3 flex items-center gap-2 bg-white border-t border-gray-300">
-                <input
-                  type="text"
-                  value={userMessage}
-                  placeholder="Digite sua mensagem..."
-                  onChange={(e) => setUserMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleFreeMessage(userMessage);
-                    }
-                  }}
-                  className="flex-1 p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#598EC2] transition"
-                />
-                
-                <button
-                  onClick={() => handleFreeMessage(userMessage)}
-                  className="p-3 bg-[#598EC2] text-white rounded-md shadow-md hover:bg-[#426b9c] transition flex items-center justify-center"
-                >
-                  <AiOutlineSend className="text-2xl" />
-                </button>
-              </div>
-            )}
+            {/* Campo de input sempre visível */}
+            <div className="absolute bottom-0 rounded-b-md left-0 right-0 p-3 flex items-center gap-2 bg-white border-t border-gray-300">
+              <input
+                type="text"
+                value={userMessage}
+                placeholder="Digite sua mensagem..."
+                onChange={(e) => setUserMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleFreeMessage(userMessage);
+                  }
+                }}
+                className="flex-1 p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#598EC2] transition"
+              />
+              
+              <button
+                onClick={() => handleFreeMessage(userMessage)}
+                className="p-3 bg-[#598EC2] text-white rounded-md shadow-md hover:bg-[#426b9c] transition flex items-center justify-center"
+              >
+                <AiOutlineSend className="text-2xl" />
+              </button>
+            </div>
           </div>
         </div>
       )}
