@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { MdOutlineMarkUnreadChatAlt } from "react-icons/md";
-import { RiArrowGoBackLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
 import Image from "next/image";
 import Bot from "../../../public/img/bot.webp";
@@ -15,9 +14,6 @@ import ButtonOption from "../components/chatbot-components/ButtonOption"
 const WhatsAppChatBot: React.FC = () => {
   const [step, setStep] = useState(1);
   const [selectedServicePlan, setSelectedServicePlan] = useState("");
-  const [userName, setUserName] = useState("");
-  const [userEnterprise, setUserEnterprise] = useState("");
-  const [userNumber, setUserNumber] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -37,8 +33,7 @@ const WhatsAppChatBot: React.FC = () => {
     }
   }, [mounted]);
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     setMounted(true);
@@ -140,9 +135,9 @@ const WhatsAppChatBot: React.FC = () => {
       // Enviar mensagem para N8N com contexto de chat
       const payload = {
         selectedServicePlan: selectedServicePlan || 'Não selecionado',
-        userName: userName || 'Cliente',
-        userEnterprise: userEnterprise || 'A definir',
-        userNumber: userNumber || 'A definir',
+        userName: 'Cliente',
+        userEnterprise: 'A definir',
+        userNumber: 'A definir',
         userMessage: message,
         promoActive: false,
         chatType: 'free_conversation',
