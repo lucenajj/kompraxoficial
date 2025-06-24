@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "instanceId": "komprax-workflow"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "path": "komprax",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook KompraX",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "webhook-komprax"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Processar e validar dados do lead\nconst leadData = $input.first().json;\n\n// Calcular score do lead\nfunction calculateLeadScore(data) {\n  let score = 50;\n  \n  const planScores = {\n    'Exclusivo': 40,\n    'Premium': 30,\n    'Profissional': 20,\n    'Padrão': 10\n  };\n  \n  score += planScores[data.selectedServicePlan] || 0;\n  \n  if (data.promoActive) score += 15;\n  if (data.userMessage && data.userMessage.length > 50) score += 10;\n  if (data.userEnterprise.length > 10) score += 5;\n  \n  return Math.min(score, 100);\n}\n\n// Processar dados\nconst processedData = {\n  // Dados do lead\n  leadId: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,\n  name: leadData.userName,\n  enterprise: leadData.userEnterprise,\n  phone: leadData.userNumber,\n  selectedPlan: leadData.selectedServicePlan,\n  message: leadData.userMessage || 'Sem mensagem adicional',\n  promoActive: leadData.promoActive || false,\n  \n  // Metadata\n  leadScore: calculateLeadScore(leadData),\n  source: 'website_komprax',\n  timestamp: new Date().toISOString(),\n  ip: leadData.metadata?.ip || 'unknown',\n  userAgent: leadData.metadata?.userAgent || 'unknown',\n  \n  // Classificação automática\n  priority: calculateLeadScore(leadData) >= 80 ? 'HIGH' : \n           calculateLeadScore(leadData) >= 60 ? 'MEDIUM' : 'LOW',\n  \n  // Próximos passos\n  nextSteps: [\n    'Análise das necessidades específicas',\n    'Preparação de demonstração personalizada',\n    leadData.selectedServicePlan === 'Exclusivo' ? \n      'Contato de consultor sênior para orçamento personalizado' :\n      `Demonstração do plano ${leadData.selectedServicePlan}`,\n    leadData.promoActive ? '🔥 Aplicação do desconto promocional' : null\n  ].filter(Boolean)\n};\n\nreturn { json: processedData };"
+      },
+      "id": "process-lead-data",
+      "name": "Processar Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "high-priority",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-priority",
+      "name": "Verificar Prioridade",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "message": "🚨 LEAD PRIORITÁRIO - KompraX\n\n👤 **{{ $json.name }}**\n🏢 **{{ $json.enterprise }}**\n📱 **{{ $json.phone }}**\n📋 **Plano:** {{ $json.selectedPlan }}\n⭐ **Score:** {{ $json.leadScore }}/100\n\n💬 **Mensagem:**\n{{ $json.message }}\n\n🔥 **Promoção Ativa:** {{ $json.promoActive ? 'SIM' : 'NÃO' }}\n\n**ID do Lead:** {{ $json.leadId }}",
+        "chatId": "@komprax_leads",
+        "additionalFields": {}
+      },
+      "id": "telegram-high-priority",
+      "name": "Telegram - Alta Prioridade",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "message": "📋 Novo Lead - KompraX\n\n👤 {{ $json.name }}\n🏢 {{ $json.enterprise }}\n📱 {{ $json.phone }}\n📋 Plano: {{ $json.selectedPlan }}\n⭐ Score: {{ $json.leadScore }}/100",
+        "chatId": "@komprax_leads_geral",
+        "additionalFields": {}
+      },
+      "id": "telegram-regular",
+      "name": "Telegram - Geral",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pipedrive.com/v1/persons",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pipedriveApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "org_name",
+              "value": "={{ $json.enterprise }}"
+            },
+            {
+              "name": "custom_fields",
+              "value": "={{ { \"lead_score\": $json.leadScore, \"selected_plan\": $json.selectedPlan, \"promo_active\": $json.promoActive, \"source\": \"website_komprax\" } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "pipedrive-contact",
+      "name": "Criar Contato Pipedrive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Lead processado com sucesso!\",\n  \"data\": {\n    \"leadId\": \"{{ $('Processar Lead').item.json.leadId }}\",\n    \"estimatedResponse\": \"24 horas\",\n    \"nextSteps\": {{ $('Processar Lead').item.json.nextSteps }}\n  }\n}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Resposta Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gerar resposta inteligente baseada no perfil do lead\nconst leadData = $input.first().json;\n\nfunction generateIntelligentResponse(data) {\n  const responses = {\n    'Exclusivo': {\n      message: `Olá ${data.name}! Que excelente escolha o plano Exclusivo! 🌟 Nossa equipe de consultores sêniores entrará em contato nas próximas 2 horas para desenvolver uma solução completamente personalizada para ${data.enterprise}.`,\n      urgency: 'IMMEDIATE',\n      assignTo: 'senior_consultant'\n    },\n    'Premium': {\n      message: `${data.name}, obrigado pelo interesse no plano Premium! 🚀 Este é perfeito para associações de médio-grande porte. Nosso especialista entrará em contato hoje para uma demonstração completa.`,\n      urgency: 'HIGH',\n      assignTo: 'product_specialist'\n    },\n    'Profissional': {\n      message: `Oi ${data.name}! O plano Profissional é uma excelente opção para ${data.enterprise}. ⚡ Vamos agendar uma demonstração para mostrar como pode otimizar suas operações.`,\n      urgency: 'MEDIUM',\n      assignTo: 'sales_consultant'\n    },\n    'Padrão': {\n      message: `Olá ${data.name}! O plano Padrão é ideal para começar a transformação digital de ${data.enterprise}. 📈 Nossa equipe entrará em contato para mostrar os primeiros passos.`,\n      urgency: 'NORMAL',\n      assignTo: 'sales_rep'\n    }\n  };\n\n  const response = responses[data.selectedPlan] || responses['Padrão'];\n  \n  // Adicionar urgência se promoção ativa\n  if (data.promoActive) {\n    response.message += \" 🔥 E como você tem a promoção ativa, vamos garantir que receba o desconto especial!\";\n    response.urgency = 'IMMEDIATE';\n  }\n  \n  return response;\n}\n\nconst aiResponse = generateIntelligentResponse(leadData);\n\nreturn {\n  json: {\n    ...leadData,\n    aiResponse: aiResponse,\n    automatedTasks: [\n      {\n        type: 'followup_call',\n        scheduledFor: new Date(Date.now() + (aiResponse.urgency === 'IMMEDIATE' ? 2 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000)).toISOString(),\n        assignedTo: aiResponse.assignTo,\n        priority: aiResponse.urgency\n      },\n      {\n        type: 'send_material',\n        scheduledFor: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min\n        material: `brochure_${leadData.selectedPlan.toLowerCase()}`,\n        priority: 'NORMAL'\n      }\n    ]\n  }\n};"
+      },
+      "id": "ai-response-generator",
+      "name": "IA - Resposta Inteligente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.zapier.com/hooks/catch/webhook-crm-tasks/",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "leadData",
+              "value": "={{ $json }}"
+            },
+            {
+              "name": "automatedTasks",
+              "value": "={{ $json.automatedTasks }}"
+            }
+          ]
+        }
+      },
+      "id": "create-automated-tasks",
+      "name": "Criar Tarefas Automatizadas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 500]
+    }
+  ],
+  "connections": {
+    "Webhook KompraX": {
+      "main": [
+        [
+          {
+            "node": "Processar Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IA - Resposta Inteligente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processar Lead": {
+      "main": [
+        [
+          {
+            "node": "Verificar Prioridade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Prioridade": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Alta Prioridade",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Criar Contato Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Geral",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Criar Contato Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Contato Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "Resposta Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA - Resposta Inteligente": {
+      "main": [
+        [
+          {
+            "node": "Criar Tarefas Automatizadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-20T12:00:00.000Z",
+  "versionId": "1"
+}

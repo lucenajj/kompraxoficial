@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Host+Grotesk:ital,wght@0,500;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@175&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  box-sizing: border-box;
+  background-color: rgb(36, 36, 36);
+}
+html {
+  scroll-behavior: smooth;
+}
+.font1 {
+  font-family: "Afacad Flux", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 175;
+  font-style: normal;
+  font-variation-settings: "slnt" 0;
+}
+.font2 {
+  font-family: "Host Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+
+@keyframes pulse-text {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.text-pulse {
+  display: inline-block;
+  animation: pulse-text 1.5s infinite ease-in-out;
+}
+
+header {
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.header-slide {
+  animation: slideDown 0.5s ease-out forwards;
+}
+
+.fixed-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.move-up {
+  position: relative;
+  animation: moveUp 1.5s ease-in-out forwards;
+}
+
+/* Animação para fade-in ao rolar */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.fadeInUp-active {
+  animation: fadeInUp 1.5s forwards;
+}
+
+/* Animação para mover para cima */
+@keyframes moveUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+/* Animação para fade-in geral */
+@keyframes FadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes logoFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.logocapa img {
+  animation: logoFadeIn 3s ease-out forwards;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.logocapa img:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+
+.console-container {
+  position: absolute;
+  height: 200px;
+  width: 100%;
+  position: relative;
+  color: white;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.console-underscore {
+  display: inline-block;
+  position: relative;
+  top: -0.14em;
+  left: 6px;
+}
+
+.bt1:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.plataform-button {
+  box-shadow: 0px 0px 5px 1px rgb(35, 122, 128);
+}
+.responsiva {
+  display: flex;
+}
+@media (max-width: 1024px) {
+  .responsiva {
+    display: none;
+  }
+  .apresentacao1 {
+    max-width: 80%;
+    margin-top: 0px;
+  }
+  .apresentacao2 {
+    max-width: 80%;
+  }
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Classes de animação */
+.slide-in {
+  animation: slideIn 0.3s forwards;
+}
+
+.slide-out {
+  animation: slideOut 0.3s forwards;
+}
+@media (max-width: 768px) {
+  .navbarmaior {
+    display: none;
+  }
+}
+@media (max-width: 500px) {
+  .menunav {
+    display: none;
+  }
+  .logocapa {
+    margin-top: 100px;
+  }
+  .console-container {
+    font-size: 26px;
+  }
+}
