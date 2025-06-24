@@ -211,6 +211,8 @@ const WhatsAppChatBot: React.FC = () => {
         promoActive
       };
 
+      console.log('🚀 [Frontend] Enviando payload:', payload);
+
       const response = await fetch('/api/webhook/n8n', {
         method: 'POST',
         headers: {
@@ -219,7 +221,10 @@ const WhatsAppChatBot: React.FC = () => {
         body: JSON.stringify(payload)
       });
 
+      console.log('📡 [Frontend] Response status:', response.status, response.statusText);
+
       const result = await response.json();
+      console.log('📥 [Frontend] Response data:', result);
 
       if (result.success) {
         // Sucesso - mostrar mensagem personalizada
@@ -243,7 +248,12 @@ const WhatsAppChatBot: React.FC = () => {
         throw new Error(result.error || 'Erro desconhecido');
       }
     } catch (error) {
-      console.error('Erro ao enviar dados:', error);
+      console.error('❌ [Frontend] Erro ao enviar dados:', error);
+      console.error('❌ [Frontend] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack'
+      });
       
       // Mensagem de erro amigável
       setChatMessages((prev) => [

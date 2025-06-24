@@ -43,9 +43,14 @@ function checkRateLimit(ip: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔄 [N8N Webhook] Iniciando processamento...');
+    
     // Rate limiting
     const clientIP = getClientIP(request);
+    console.log('📍 [N8N Webhook] Client IP:', clientIP);
+    
     if (!checkRateLimit(clientIP)) {
+      console.log('⚠️ [N8N Webhook] Rate limit atingido para IP:', clientIP);
       return NextResponse.json(
         { 
           success: false, 
@@ -57,11 +62,14 @@ export async function POST(request: NextRequest) {
 
     // Parse e validação dos dados
     const rawData = await request.json();
+    console.log('📥 [N8N Webhook] Dados recebidos:', JSON.stringify(rawData, null, 2));
+    
     const validatedData = chatDataSchema.parse({
       ...rawData,
       timestamp: new Date().toISOString(),
       source: 'website_chat'
     });
+    console.log('✅ [N8N Webhook] Dados validados:', JSON.stringify(validatedData, null, 2));
 
     // Dados enriquecidos para o N8N
     const enrichedData = {
@@ -74,8 +82,11 @@ export async function POST(request: NextRequest) {
         leadScore: calculateLeadScore(validatedData)
       }
     };
+    console.log('🔧 [N8N Webhook] Dados enriquecidos:', JSON.stringify(enrichedData, null, 2));
 
     // Envio para N8N webhook
+    console.log('🚀 [N8N Webhook] Enviando para N8N:', 'https://n8nub.mooveinsd.com.br/webhook-test/komprax');
+    
     const n8nResponse = await fetch('https://n8nub.mooveinsd.com.br/webhook-test/komprax', {
       method: 'POST',
       headers: {
@@ -85,14 +96,28 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(enrichedData)
     });
 
+    console.log('📡 [N8N Webhook] Resposta N8N Status:', n8nResponse.status, n8nResponse.statusText);
+    
+    // Tentar obter o texto da resposta para debug
+    const responseText = await n8nResponse.text();
+    console.log('📡 [N8N Webhook] Resposta N8N Body:', responseText);
+
     if (!n8nResponse.ok) {
-      throw new Error(`N8N webhook error: ${n8nResponse.status} ${n8nResponse.statusText}`);
+      throw new Error(`N8N webhook error: ${n8nResponse.status} ${n8nResponse.statusText} - Response: ${responseText}`);
     }
 
-    const n8nResult = await n8nResponse.json();
+    // Tentar parsear como JSON
+    let n8nResult;
+    try {
+      n8nResult = JSON.parse(responseText);
+      console.log('✅ [N8N Webhook] Resposta N8N parseada:', JSON.stringify(n8nResult, null, 2));
+    } catch {
+      console.log('⚠️ [N8N Webhook] Resposta não é JSON válido, usando texto:', responseText);
+      n8nResult = { message: responseText };
+    }
 
     // Resposta para o frontend
-    return NextResponse.json({
+    const successResponse = {
       success: true,
       message: 'Dados enviados com sucesso! Nossa equipe entrará em contato em breve.',
       data: {
@@ -100,22 +125,27 @@ export async function POST(request: NextRequest) {
         estimatedResponse: '24 horas',
         nextSteps: generateNextSteps(validatedData)
       }
-    });
+    };
+    
+    console.log('✅ [N8N Webhook] Sucesso! Resposta final:', JSON.stringify(successResponse, null, 2));
+    return NextResponse.json(successResponse);
 
   } catch (error) {
-    console.error('Webhook N8N Error:', error);
+    console.error('❌ [N8N Webhook] Erro completo:', error);
 
     // Log estruturado para monitoramento
     const errorDetails = {
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
       ip: getClientIP(request),
       userAgent: request.headers.get('user-agent')
     };
     
-    console.error('Error Details:', errorDetails);
+    console.error('📋 [N8N Webhook] Detalhes do erro:', JSON.stringify(errorDetails, null, 2));
 
     if (error instanceof z.ZodError) {
+      console.error('📝 [N8N Webhook] Erro de validação Zod:', error.errors);
       return NextResponse.json(
         { 
           success: false, 
