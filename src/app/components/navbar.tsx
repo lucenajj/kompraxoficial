@@ -45,22 +45,28 @@ export default function Navbar() {
 
   // Atualiza localStorage quando showPromo ou timeLeft mudam
   useEffect(() => {
-    localStorage.setItem('showPromo', JSON.stringify(showPromo));
+    if (typeof window !== 'undefined' && showPromo !== null) {
+      localStorage.setItem('showPromo', JSON.stringify(showPromo));
+    }
   }, [showPromo]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
       setShowPromo(false);
       setPromoActive(false);
-      localStorage.removeItem('timeLeft');
-      localStorage.removeItem('promoActive');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('timeLeft');
+        localStorage.removeItem('promoActive');
+      }
       return;
     }
 
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
-        localStorage.setItem('timeLeft', newTime.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('timeLeft', newTime.toString());
+        }
         return newTime;
       });
     }, 1000);
@@ -70,9 +76,19 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => setScrollPosition(window.scrollY);
-    setCurrentPage(window.location.pathname);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Inicializar apenas no cliente
+    if (typeof window !== 'undefined') {
+      setCurrentPage(window.location.pathname);
+      setScrollPosition(window.scrollY); // Inicializar scrollPosition
+      window.addEventListener('scroll', handleScroll);
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -99,9 +115,13 @@ export default function Navbar() {
   const openChatbot = () => {
     if (promoActive && timeLeft > 0) {
       console.log("🔥 Ativando desconto na sessão do Chatbot!");
-      localStorage.setItem('promoActive', 'true');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('promoActive', 'true');
+      }
     }
-    window.location.hash = "#chat-obiana";
+    if (typeof window !== 'undefined') {
+      window.location.hash = "#chat-obiana";
+    }
   };
   
 
@@ -145,7 +165,9 @@ export default function Navbar() {
               className="text-black font-bold text-2xl md:text-3xl px-1 md:px-2"
               onClick={() => {
                 setShowPromo(false);
-                localStorage.setItem("showPromo", JSON.stringify(false)); // Atualiza no localStorage
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem("showPromo", JSON.stringify(false)); // Atualiza no localStorage
+                }
               }}
             >
               <IoMdClose />
