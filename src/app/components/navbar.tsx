@@ -11,19 +11,23 @@ import logo3 from '../../../public/img/logo3.png';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState('/');
-  const [showPromo, setShowPromo] = useState<null | boolean>(null);
+  const [showPromo, setShowPromo] = useState(false); // Valor padrão consistente
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [promoActive, setPromoActive] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
+  // Hidratação controlada
   useEffect(() => {
+    setIsClient(true);
+    
     if (typeof window !== "undefined") {
       const savedShowPromo = localStorage.getItem("showPromo");
       const savedTimeLeft = localStorage.getItem("timeLeft");
   
       if (savedShowPromo !== null) {
-        setShowPromo(JSON.parse(savedShowPromo)); // Define o estado com base no `localStorage`
+        setShowPromo(JSON.parse(savedShowPromo));
       } else {
-        setShowPromo(true); // Se não houver registro, mostra a Topbar normalmente
+        setShowPromo(true);
       }
   
       if (savedTimeLeft) {
@@ -42,18 +46,18 @@ export default function Navbar() {
   }, []);  
   
 
-  // Atualiza localStorage quando showPromo ou timeLeft mudam
+  // Atualiza localStorage quando showPromo ou timeLeft mudam (apenas no cliente)
   useEffect(() => {
-    if (typeof window !== 'undefined' && showPromo !== null) {
+    if (isClient && typeof window !== 'undefined') {
       localStorage.setItem('showPromo', JSON.stringify(showPromo));
     }
-  }, [showPromo]);
+  }, [showPromo, isClient]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
       setShowPromo(false);
       setPromoActive(false);
-      if (typeof window !== 'undefined') {
+      if (isClient && typeof window !== 'undefined') {
         localStorage.removeItem('timeLeft');
         localStorage.removeItem('promoActive');
       }
@@ -63,7 +67,7 @@ export default function Navbar() {
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
-        if (typeof window !== 'undefined') {
+        if (isClient && typeof window !== 'undefined') {
           localStorage.setItem('timeLeft', newTime.toString());
         }
         return newTime;
@@ -71,7 +75,7 @@ export default function Navbar() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, isClient]);
 
   useEffect(() => {
     // Inicializar apenas no cliente
@@ -104,11 +108,11 @@ export default function Navbar() {
   const openChatbot = () => {
     if (promoActive && timeLeft > 0) {
       console.log("🔥 Ativando desconto na sessão do Chatbot!");
-      if (typeof window !== 'undefined') {
+      if (isClient && typeof window !== 'undefined') {
         localStorage.setItem('promoActive', 'true');
       }
     }
-    if (typeof window !== 'undefined') {
+    if (isClient && typeof window !== 'undefined') {
       window.location.hash = "#chat-obiana";
     }
   };
@@ -123,7 +127,7 @@ export default function Navbar() {
 
   return (
     <>
-      {showPromo !== null && showPromo && (
+      {isClient && showPromo && (
         <div className="relative flex flex-col md:flex-row top-0 left-0 w-full bg-[#ff4c4c] text-black text-center py-1 flex-wrap md:flex-nowrap justify-between items-center px-2 md:px-4">
           <span className="text-[10px] md:text-sm lg:text-md font-medium flex-1 text-left">
             Responda a tempo nosso questionário de contato e receba 
@@ -154,8 +158,8 @@ export default function Navbar() {
               className="text-black font-bold text-2xl md:text-3xl px-1 md:px-2"
               onClick={() => {
                 setShowPromo(false);
-                if (typeof window !== 'undefined') {
-                  localStorage.setItem("showPromo", JSON.stringify(false)); // Atualiza no localStorage
+                if (isClient && typeof window !== 'undefined') {
+                  localStorage.setItem("showPromo", JSON.stringify(false));
                 }
               }}
             >

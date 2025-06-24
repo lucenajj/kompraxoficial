@@ -1,11 +1,20 @@
+'use client';
+
 import { 
   FaFacebookF, FaInstagram, FaEnvelope, FaPhoneAlt 
 } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import logoKomprax from '../../../public/img/logo1.png';
 
 export default function Footer() {
+  const [currentYear, setCurrentYear] = useState(2024); // Valor padrão
+
+  useEffect(() => {
+    // Definir o ano atual apenas no cliente
+    setCurrentYear(new Date().getFullYear());
+  }, []);
   return (
     <footer className="bg-[#181818] text-white py-12">
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
@@ -85,7 +94,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-6 border-t border-gray-700 text-center text-gray-500 text-xs">
-          <p>&copy; {new Date().getFullYear()} Komprax - Todos os direitos reservados.</p>
+          <p>&copy; {currentYear} Komprax - Todos os direitos reservados.</p>
           <p className="mt-2">Desenvolvido por <strong>AiasTec</strong></p>
         </div>
       </div>

@@ -10,7 +10,8 @@ const chatDataSchema = z.object({
   userMessage: z.string().optional(),
   promoActive: z.boolean().optional(),
   timestamp: z.string().optional(),
-  source: z.string().default('website_chat')
+  source: z.string().default('website_chat'),
+  chatType: z.string().optional()
 });
 
 // Rate limiting simples (em produção, usar Redis)
@@ -123,7 +124,9 @@ export async function POST(request: NextRequest) {
       data: {
         leadId: n8nResult.leadId || `lead_${Date.now()}`,
         estimatedResponse: '24 horas',
-        nextSteps: generateNextSteps(validatedData)
+        nextSteps: generateNextSteps(validatedData),
+        aiResponse: validatedData.chatType === 'free_conversation' ? 
+          generateAIResponse(validatedData) : undefined
       }
     };
     
@@ -209,4 +212,39 @@ function generateNextSteps(data: z.infer<typeof chatDataSchema>): string[] {
   }
 
   return steps;
+}
+
+// Função para gerar resposta de IA
+function generateAIResponse(data: z.infer<typeof chatDataSchema>): string {
+  const message = data.userMessage?.toLowerCase() || '';
+  const plan = data.selectedServicePlan || '';
+  const userName = data.userName || 'Cliente';
+  
+  // IA conversacional baseada em palavras-chave
+  if (message.includes('preço') || message.includes('valor') || message.includes('custo')) {
+    return `Ótima pergunta sobre preços, ${userName}! 💰<br/><br/>Os valores do <b>${plan}</b> são super competitivos. Temos opções de pagamento flexíveis e retorno garantido do investimento.<br/><br/>📞 Quer que eu conecte você com nosso consultor para um orçamento personalizado?`;
+  }
+  
+  if (message.includes('funcionalidade') || message.includes('recurso') || message.includes('como funciona')) {
+    return `Excelente! O <b>${plan}</b> tem recursos incríveis! 🚀<br/><br/>✅ Gestão completa de associados<br/>✅ Relatórios inteligentes<br/>✅ Automação de processos<br/>✅ Suporte 24/7<br/><br/>💡 Sobre qual funcionalidade específica você gostaria de saber mais?`;
+  }
+  
+  if (message.includes('demo') || message.includes('demonstração') || message.includes('teste')) {
+    return `Perfeito! Vamos agendar uma demonstração do <b>${plan}</b>! 🎯<br/><br/>📅 Nosso consultor pode fazer uma demo personalizada mostrando exatamente como o KompraX se adapta à sua associação.<br/><br/>⏰ Prefere qual horário: manhã ou tarde?`;
+  }
+  
+  if (message.includes('suporte') || message.includes('ajuda') || message.includes('problema')) {
+    return `Fique tranquilo(a), ${userName}! 🤗<br/><br/>Nosso suporte é <b>excepcional</b>:<br/>📞 Atendimento humanizado<br/>⚡ Resposta rápida<br/>🎓 Treinamento incluído<br/>🔧 Suporte técnico especializado<br/><br/>💬 Em que posso te ajudar especificamente?`;
+  }
+  
+  if (message.includes('contrato') || message.includes('prazo') || message.includes('cancelamento')) {
+    return `Transparência total, ${userName}! 📋<br/><br/>✅ Contratos flexíveis<br/>✅ Sem fidelidade abusiva<br/>✅ Migração de dados incluída<br/>✅ Período de adaptação<br/><br/>🤝 Nosso foco é seu sucesso, não te prender em contratos complicados!`;
+  }
+  
+  if (message.includes('obrigad') || message.includes('valeu') || message.includes('ótimo')) {
+    return `Fico feliz em ajudar, ${userName}! 😊<br/><br/>É sempre um prazer esclarecer dúvidas sobre o <b>${plan}</b>.<br/><br/>💬 Tem mais alguma questão? Estou aqui para te ajudar!`;
+  }
+  
+  // Resposta padrão contextual
+  return `Entendi sua questão sobre "<b>${message}</b>", ${userName}! 🤔<br/><br/>Vou registrar sua solicitação e nosso especialista em <b>${plan}</b> entrará em contato com uma resposta detalhada.<br/><br/>📞 Enquanto isso, posso te ajudar com:<br/>• Informações sobre preços<br/>• Demonstração do sistema<br/>• Detalhes das funcionalidades<br/><br/>💬 O que mais gostaria de saber?`;
 }
