@@ -19,8 +19,7 @@ import WhatsAppButton from "./components/WhatsAppButton";
 import Link from "next/link";
 
 import { FaCheck } from "react-icons/fa6";
-import { HiOutlineCheckBadge } from "react-icons/hi2";
-import { IoIosCloseCircleOutline } from "react-icons/io";
+
 import heroImg from "../../public/img/home-komprax.jpg";
 import screen1 from "../../public/img/screens/screen1.png";
 import screen2 from "../../public/img/screens/screen2.png";
@@ -118,36 +117,79 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-[#f5f5f5] text-gray-800">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Título principal ajustado para telas menores */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-gray-50 to-white text-gray-800">
+        <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
             <span className="text-[#598EC2]">Otimize sua gestão</span> e elimine <span className="text-red-600">falhas</span> no processo de compras
           </h2>
-
-          {/* Descrição inicial */}
           <p className="text-base sm:text-lg text-gray-700 mt-3 sm:mt-4 max-w-3xl mx-auto">
             Processos manuais geram <b>custos desnecessários e atrasos</b>. Descubra como evitar erros e melhorar a eficiência da sua associação.
           </p>
         </div>
 
-        {/* Problemas destacados - Design mais compacto */}
-        <div className="mt-10 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
+        {/* Cards de Desafios e Soluções */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {[
-            "Falta de controle sobre cotações e pedidos.",
-            "Erros manuais e retrabalho constante.",
-            "Dificuldade para encontrar o melhor preço.",
-            "Falta de automação no processo de aprovação.",
-          ].map((problem, index) => (
-            <div key={index} className="bg-white shadow-md rounded-lg py-4 p-2 mx-[10px] sm:p-4 flex flex-col items-center text-center border 
-                                        transition-all hover:shadow-lg border-red-500">
-              {/* Ícone "X" no topo */}
-              <div className="w-10 sm:w-12 h-10 sm:h-12 flex items-center justify-center text-red-500 rounded-full mb-3 sm:mb-4 text-3xl sm:text-4xl font-bold">
-                <IoIosCloseCircleOutline />
+            {
+              challenge: "Falta de controle sobre cotações e pedidos.",
+              solution: "Automatização Total",
+              icon: "⚡",
+              description: "Envio automático para fornecedores em segundos"
+            },
+            {
+              challenge: "Erros manuais e retrabalho constante.", 
+              solution: "Precisão Garantida",
+              icon: "🎯",
+              description: "Sistema integrado elimina falhas humanas"
+            },
+            {
+              challenge: "Dificuldade para encontrar o melhor preço.",
+              solution: "Comparação Inteligente", 
+              icon: "📊",
+              description: "Visualize e compare ofertas lado a lado"
+            },
+            {
+              challenge: "Falta de automação no processo de aprovação.",
+              solution: "Fluxo Otimizado",
+              icon: "🚀", 
+              description: "Aprovações rápidas com controle total"
+            }
+          ].map((item, index) => (
+            <div key={index} className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+              {/* Header com ícone */}
+              <div className="bg-gradient-to-r from-[#598EC2] to-[#6ba3d1] p-4 text-center">
+                <div className="text-3xl mb-2">{item.icon}</div>
+                <h3 className="text-white font-semibold text-sm">{item.solution}</h3>
               </div>
-              <p className="text-gray-700 text-[14px] font-bold sm:text-[16px]">{problem}</p>
+              
+              {/* Conteúdo */}
+              <div className="p-5">
+                <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Problema:</div>
+                <p className="text-gray-600 text-sm mb-3 line-through opacity-60">{item.challenge}</p>
+                
+                <div className="text-xs text-[#598EC2] uppercase tracking-wide mb-2 font-medium">Solução:</div>
+                <p className="text-gray-800 text-sm font-medium">{item.description}</p>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-12 text-center">
+          <Link
+            href="#chat-obiana"
+            onClick={(e) => {
+              e.preventDefault();
+              openChatbot();
+            }} 
+            className="inline-flex items-center bg-[#598EC2] text-white font-semibold px-8 py-4 rounded-xl text-lg shadow-lg 
+                      hover:bg-[#466b8e] hover:scale-105 transition-all duration-300"
+          >
+            Ver Como Funciona
+            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
       </section>
 
@@ -164,32 +206,33 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Benefícios - Cards Responsivos e Compactos */}
-        <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 max-w-5xl mx-auto">
+        {/* Benefícios - Cards Elegantes */}
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {[
-            { title: "Automatização Total", desc: "Do cadastro do veículo à aprovação final em poucos cliques.", icon: <HiOutlineCheckBadge /> },
-            { title: "Cotações Inteligentes", desc: "Solicitações enviadas para fornecedores automaticamente.", icon: <HiOutlineCheckBadge /> },
-            { title: "Melhores Preços Garantidos", desc: "Compare orçamentos e escolha a melhor opção.", icon: <HiOutlineCheckBadge /> },
-            { title: "Integração com Cilia e SGA", desc: "Cadastro automatizado de sinistros e peças.", icon: <HiOutlineCheckBadge /> },
-            { title: "Controle Financeiro Preciso", desc: "Pagamentos, previsões e aprovações em um só lugar.", icon: <HiOutlineCheckBadge /> },
-            { title: "Economia de Tempo e Custos", desc: "Sua equipe ganha eficiência e reduz gastos.", icon: <HiOutlineCheckBadge /> },
+            { title: "Automatização Total", desc: "Do cadastro do veículo à aprovação final em poucos cliques.", icon: "🔄" },
+            { title: "Cotações Inteligentes", desc: "Solicitações enviadas para fornecedores automaticamente.", icon: "💡" },
+            { title: "Melhores Preços Garantidos", desc: "Compare orçamentos e escolha a melhor opção.", icon: "💰" },
+            { title: "Integração com Cilia e SGA", desc: "Cadastro automatizado de sinistros e peças.", icon: "🔗" },
+            { title: "Controle Financeiro Preciso", desc: "Pagamentos, previsões e aprovações em um só lugar.", icon: "📈" },
+            { title: "Economia de Tempo e Custos", desc: "Sua equipe ganha eficiência e reduz gastos.", icon: "⏱️" },
           ].map((benefit, index) => (
-            <div key={index} className="bg-gray-50 shadow-md rounded-md p-4 sm:p-5 flex items-start text-left border 
-                                        transition-all hover:shadow-lg border-green-500">
-              <div className="text-green-500 text-3xl sm:text-4xl mr-3 sm:mr-4">
-                {benefit.icon}
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-lg font-semibold text-gray-900">{benefit.title}</h3>
-                <p className="text-gray-700 mt-1 text-xs sm:text-sm">{benefit.desc}</p>
+            <div key={index} className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-100">
+              <div className="flex items-start space-x-4">
+                <div className="bg-green-50 rounded-lg p-3 group-hover:bg-green-100 transition-colors">
+                  <span className="text-2xl">{benefit.icon}</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{benefit.desc}</p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Chamada para ação */}
-        <div className="mt-10 sm:mt-12 text-center">
-          <p className="text-sm sm:text-base font-semibold text-gray-800">
+        <div className="mt-12 text-center">
+          <p className="text-lg font-semibold text-gray-800 mb-6">
             Transforme a gestão da sua associação agora mesmo!
           </p>
           <Link
@@ -198,10 +241,13 @@ export default function Home() {
               e.preventDefault();
               openChatbot();
             }} 
-            className="inline-block mt-4 sm:mt-5 bg-green-500 text-white font-semibold px-5 sm:px-7 py-2 sm:py-3 rounded-lg text-sm sm:text-base shadow-lg 
-                      hover:bg-green-600 hover:scale-105 transition-all duration-300"
+            className="inline-flex items-center bg-[#598EC2] text-white font-semibold px-8 py-4 rounded-xl text-lg shadow-lg 
+                      hover:bg-[#466b8e] hover:scale-105 transition-all duration-300"
           >
             Solicitar Demonstração
+            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.97 8.97 0 01-4.906-1.453L3 21l2.453-5.094A8.97 8.97 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+            </svg>
           </Link>
         </div>
       </section>

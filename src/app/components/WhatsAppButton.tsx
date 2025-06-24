@@ -95,24 +95,24 @@ const WhatsAppChatBot: React.FC = () => {
       console.log('📡 [Chat] Status resposta:', response.status);
 
       if (response.ok) {
-        const result = await response.json();
+      const result = await response.json();
         console.log('🎯 [Chat] Resposta completa da IA:', result);
 
-        setIsTyping(false);
+      setIsTyping(false);
 
         // Capturar a resposta da IA do campo "output"
         const aiResponse = result.output || result.response || result.message;
         
         if (aiResponse) {
           console.log('🤖 [Chat] Resposta da IA capturada:', aiResponse);
-          setTimeout(() => {
+        setTimeout(() => {
             addBotMessage(aiResponse);
-          }, 500);
-        } else {
+        }, 500);
+      } else {
           console.log('⚠️ [Chat] Nenhuma resposta da IA, usando fallback');
-          setTimeout(() => {
+        setTimeout(() => {
             addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida?`);
-          }, 500);
+        }, 500);
         }
       } else {
         throw new Error(`Webhook error: ${response.status}`);
@@ -233,28 +233,28 @@ const WhatsAppChatBot: React.FC = () => {
             </div>
 
             {/* Campo de input sempre visível */}
-            <div className="absolute bottom-0 rounded-b-md left-0 right-0 p-3 flex items-center gap-2 bg-white border-t border-gray-300">
-              <input
-                type="text"
-                value={userMessage}
-                placeholder="Digite sua mensagem..."
-                onChange={(e) => setUserMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleFreeMessage(userMessage);
-                  }
-                }}
-                className="flex-1 p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#598EC2] transition"
-              />
-              
-              <button
-                onClick={() => handleFreeMessage(userMessage)}
-                className="p-3 bg-[#598EC2] text-white rounded-md shadow-md hover:bg-[#426b9c] transition flex items-center justify-center"
-              >
-                <AiOutlineSend className="text-2xl" />
-              </button>
-            </div>
+              <div className="absolute bottom-0 rounded-b-md left-0 right-0 p-3 flex items-center gap-2 bg-white border-t border-gray-300">
+                <input
+                  type="text"
+                  value={userMessage}
+                  placeholder="Digite sua mensagem..."
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleFreeMessage(userMessage);
+                    }
+                  }}
+                  className="flex-1 p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#598EC2] transition"
+                />
+                
+                <button
+                  onClick={() => handleFreeMessage(userMessage)}
+                  className="p-3 bg-[#598EC2] text-white rounded-md shadow-md hover:bg-[#426b9c] transition flex items-center justify-center"
+                >
+                  <AiOutlineSend className="text-2xl" />
+                </button>
+              </div>
           </div>
         </div>
       )}
