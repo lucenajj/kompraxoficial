@@ -45,18 +45,30 @@ const WhatsAppChatBot: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ [Chat] Mensagem inicial recebida:', result);
+        console.log('✅ [Chat] Resposta completa do N8N:', result);
         
-        // Se tem resposta do webhook, usar ela, senão usar mensagem padrão
-        const initialMessage = result.response || result.message || "Olá! 😊 Sou a assistente virtual da Obian Sistemas.<br/><br/>Escolha um plano abaixo para começarmos nossa conversa!";
+        // Capturar a resposta da IA do campo "output"
+        const aiResponse = result.output || result.response || result.message;
         
-        setChatMessages([
-          {
-            sender: "bot",
-            text: initialMessage,
-            time: ""
-          }
-        ]);
+        if (aiResponse) {
+          console.log('🤖 [Chat] Resposta da IA capturada:', aiResponse);
+          setChatMessages([
+            {
+              sender: "bot",
+              text: aiResponse,
+              time: ""
+            }
+          ]);
+        } else {
+          console.log('⚠️ [Chat] Nenhuma resposta da IA encontrada, usando fallback');
+          setChatMessages([
+            {
+              sender: "bot",
+              text: "Olá! 😊 Sou a assistente virtual da Obian Sistemas.<br/><br/>Escolha um plano abaixo para começarmos nossa conversa!",
+              time: ""
+            }
+          ]);
+        }
       } else {
         throw new Error(`Webhook error: ${response.status}`);
       }
@@ -146,14 +158,8 @@ const WhatsAppChatBot: React.FC = () => {
       console.error('❌ [Chat] Erro ao enviar plano para N8N:', error);
     }
 
-    // Mudar para modo de chat livre
+    // Mudar para modo de chat livre após selecionar plano
     setStep(10);
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      addBotMessage(`Ótima escolha o ${service}! 🎉<br/><br/>Sou a <b>Obiana</b>, assistente virtual da Obian Sistemas. Estou aqui para te ajudar com todas as suas dúvidas sobre nossos planos e funcionalidades.<br/><br/>💬 <b>Como posso te ajudar hoje?</b>`);
-      setIsTyping(false);
-    }, 2000);
   };
 
   // Função para chat livre com IA usando trigger específico
@@ -202,17 +208,20 @@ const WhatsAppChatBot: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('🎯 [Chat] Resposta da IA:', result);
+        console.log('🎯 [Chat] Resposta completa da IA:', result);
 
         setIsTyping(false);
 
-        // Verificar se há resposta da IA
-        if (result.response || result.message) {
+        // Capturar a resposta da IA do campo "output"
+        const aiResponse = result.output || result.response || result.message;
+        
+        if (aiResponse) {
+          console.log('🤖 [Chat] Resposta da IA capturada:', aiResponse);
           setTimeout(() => {
-            addBotMessage(result.response || result.message);
+            addBotMessage(aiResponse);
           }, 500);
         } else {
-          // Resposta padrão
+          console.log('⚠️ [Chat] Nenhuma resposta da IA, usando fallback');
           setTimeout(() => {
             addBotMessage(`Obrigada pela sua mensagem! 😊<br/><br/>Nossa equipe está analisando sua solicitação sobre <b>"${message}"</b> e retornará em breve.<br/><br/>💬 Tem mais alguma dúvida sobre o ${selectedServicePlan}?`);
           }, 500);
