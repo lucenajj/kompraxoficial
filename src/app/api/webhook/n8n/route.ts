@@ -85,9 +85,9 @@ export async function POST(request: NextRequest) {
     console.log('🔧 [N8N Webhook] Dados enriquecidos:', JSON.stringify(enrichedData, null, 2));
 
     // Envio para N8N webhook
-    console.log('🚀 [N8N Webhook] Enviando para N8N:', 'https://n8nub.mooveinsd.com.br/webhook-test/komprax');
+    console.log('🚀 [N8N Webhook] Enviando para N8N:', 'https://webhookub.mooveinsd.com.br/webhook/komprax');
     
-    const n8nResponse = await fetch('https://n8nub.mooveinsd.com.br/webhook-test/komprax', {
+    const n8nResponse = await fetch('https://webhookub.mooveinsd.com.br/webhook/komprax', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
