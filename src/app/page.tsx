@@ -20,7 +20,7 @@ import Link from "next/link";
 
 import { FaCheck } from "react-icons/fa6";
 
-import heroImg from "../../public/img/home-komprax.jpg";
+import heroImg from "../../public/img/home-komprax.png";
 import screen1 from "../../public/img/screens/screen1.png";
 import screen2 from "../../public/img/screens/screen2.png";
 import screen3 from "../../public/img/screens/screen3.png";
@@ -80,36 +80,36 @@ export default function Home() {
         {/* Overlay escuro */}
         <div className="absolute inset-0 bg-black opacity-50"></div>
 
-        {/* Conteúdo centralizado */}
-        <div className="relative z-10 flex flex-col items-center justify-center  text-left sm:text-center px-6 w-full">
+        {/* Conteúdo alinhado à esquerda */}
+        <div className="relative z-10 flex flex-col items-start justify-center text-left px-8 sm:px-12 lg:px-16 w-full">
           {/* Título principal chamativo */}
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight max-w-3xl lg:max-w-5xl">
-            <span className="text-[#598EC2]">Potencialize</span> os resultados da sua associação
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight max-w-3xl lg:max-w-4xl">
+            <span className="text-[#598EC2]">Potencialize</span> os resultados da sua associação veicular
           </h1>
 
           {/* Subtítulo com gatilhos de conversão */}
-          <p className="text-base sm:text-lg lg:text-xl text-gray-200 sm:max-w-3xl mt-4">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-200 max-w-2xl lg:max-w-3xl mt-4">
             Simplifique cotações, centralize negociações e tome decisões inteligentes.
             Reduza custos e ganhe tempo com a <strong className="text-white">solução nº1 para associações de proteção veicular.</strong>
           </p>
 
           {/* Botões estratégicos para conversão */}
-          <div className="mt-12 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link
               href="#chat-obiana"
               onClick={(e) => {
                 e.preventDefault();
                 openChatbot();
               }} 
-              className="bg-[#598EC2] text-white px-[20px] w-[250px] font-medium sm:px-8 py-2 sm:py-2 rounded-lg text-base sm:text-[17px] shadow-lg 
-                        hover:bg-[#466b8e] transition-all duration-300 text-center sm:w-auto"
+              className="bg-[#598EC2] text-white px-8 py-4 font-medium rounded-lg text-base sm:text-lg shadow-lg 
+                        hover:bg-[#466b8e] transition-all duration-300 text-center w-fit"
             >
-              <span className="text-pulse">Solicite uma demonstração</span>
+              <span>Solicite uma demonstração</span>
             </Link>
             <Link
               href="#planos"
-              className="border border-white w-[140px] text-white font-medium px-[10px] sm:px-8 py-[7px] sm:py-2 rounded-lg text-base sm:text-[17px] shadow-lg
-                        hover:bg-white hover:text-gray-800 transition-all duration-300 text-center sm:w-auto"
+              className="border-2 border-white text-white font-medium px-8 py-4 rounded-lg text-base sm:text-lg shadow-lg
+                        hover:bg-white hover:text-gray-800 transition-all duration-300 text-center w-fit"
             >
               Ver Planos
             </Link>
