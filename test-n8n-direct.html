@@ -46,7 +46,7 @@
         }
         
         async function testN8NDirect() {
-            const url = 'https://n8nub.mooveinsd.com.br/webhook/komprax';
+            const url = 'https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat';
             const payload = {
                 selectedServicePlan: 'Premium',
                 userName: 'Teste Direto N8N',
@@ -65,7 +65,8 @@
                         'Content-Type': 'application/json',
                         'User-Agent': 'KompraX-WebApp/1.0'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: AbortSignal.timeout(30000)
                 });
                 
                 const responseText = await response.text();
@@ -76,7 +77,11 @@
                     addResult('❌ N8N com Erro', `Status: ${response.status} ${response.statusText}\nResposta: ${responseText}`, true);
                 }
             } catch (error) {
-                addResult('❌ Erro de Conexão N8N', `Erro: ${error.message}\n\nIsso pode indicar:\n- N8N está fora do ar\n- URL incorreta\n- Problema de CORS\n- Firewall bloqueando`, true);
+                if (error.name === 'TimeoutError') {
+                    addResult('❌ Timeout N8N', `Erro: Timeout após 30 segundos\n\nIsso pode indicar:\n- N8N está sobrecarregado\n- URL incorreta\n- Problema de rede`, true);
+                } else {
+                    addResult('❌ Erro de Conexão N8N', `Erro: ${error.message}\n\nIsso pode indicar:\n- N8N está fora do ar\n- URL incorreta\n- Problema de CORS\n- Firewall bloqueando`, true);
+                }
             }
         }
         

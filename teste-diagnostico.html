@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Webhook N8N</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 5px; }
+        .result { background: #f8f9fa; padding: 20px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        pre { white-space: pre-wrap; font-family: monospace; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico Webhook N8N</h1>
+        <p><strong>URL:</strong> https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat</p>
+        
+        <button onclick="testarWebhook()">🧪 Testar Webhook</button>
+        <button onclick="limpar()">🗑️ Limpar</button>
+        
+        <div id="resultados"></div>
+    </div>
+
+    <script>
+        async function testarWebhook() {
+            const div = document.getElementById('resultados');
+            const url = 'https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat';
+            
+            div.innerHTML = '<div class="result">🧪 Testando webhook...</div>';
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Teste',
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                const text = await response.text();
+                
+                if (response.ok) {
+                    div.innerHTML = `<div class="result success">✅ SUCESSO<br>Status: ${response.status}<br>Resposta: ${text}</div>`;
+                } else {
+                    div.innerHTML = `<div class="result error">❌ ERRO HTTP<br>Status: ${response.status}<br>Resposta: ${text}</div>`;
+                }
+                
+            } catch (error) {
+                div.innerHTML = `<div class="result error">❌ ERRO DE REDE<br>${error.message}<br><br>Possíveis causas:<br>• N8N offline<br>• URL incorreta<br>• Problema CORS</div>`;
+            }
+        }
+        
+        function limpar() {
+            document.getElementById('resultados').innerHTML = '';
+        }
+    </script>
+</body>
+</html> 
