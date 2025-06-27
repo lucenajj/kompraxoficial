@@ -86,9 +86,9 @@ export async function POST(request: NextRequest) {
     console.log('🔧 [N8N Webhook] Dados enriquecidos:', JSON.stringify(enrichedData, null, 2));
 
     // Envio para N8N webhook
-    console.log('🚀 [N8N Webhook] Enviando para N8N:', 'https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat');
+    console.log('🚀 [N8N Webhook] Enviando para N8N:', 'https://webhookub.mooveinsd.com.br/webhook/1a7ff005-dbd8-40fc-a0f7-2c675a2f3c94/chat');
     
-    const n8nResponse = await fetch('https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat', {
+    const n8nResponse = await fetch('https://webhookub.mooveinsd.com.br/webhook/1a7ff005-dbd8-40fc-a0f7-2c675a2f3c94/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
