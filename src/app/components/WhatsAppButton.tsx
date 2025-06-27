@@ -83,7 +83,7 @@ const WhatsAppChatBot: React.FC = () => {
       console.log('🤖 [Chat] Enviando para webhook de chat:', chatPayload);
 
       // Usar webhook específico para chat
-      const response = await fetch('https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat', {
+      const response = await fetch('https://webhookub.mooveinsd.com.br/webhook/1a7ff005-dbd8-40fc-a0f7-2c675a2f3c94/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
