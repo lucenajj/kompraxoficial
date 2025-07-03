@@ -22,32 +22,12 @@ const WhatsAppButton = dynamic(() => import('./components/WhatsAppButton'), {
   ssr: false,
 });
 
-import { FaCheck } from "react-icons/fa6";
-
 import heroImg from "../../public/img/home-komprax.png";
 import screen1 from "../../public/img/screens/screen1.png";
 import screen2 from "../../public/img/screens/screen2.png";
 import screen3 from "../../public/img/screens/screen3.png";
 import screen4 from "../../public/img/screens/screen4.png";
 import screen5 from "../../public/img/screens/screen5.png";
-
-const associations = [
-  { logo: "/img/logo/association1.png", width: 150, height: 100 },
-  { logo: "/img/logo/association2.png", width: 220, height: 180 },
-  { logo: "/img/logo/association3.png", width: 150, height: 100 },
-  { logo: "/img/logo/association4.png", width: 150, height: 100 },
-  { logo: "/img/logo/association5.png", width: 120, height: 100 },
-  { logo: "/img/logo/association6.png", width: 150, height: 100 },
-  { logo: "/img/logo/association7.png", width: 150, height: 100 },
-  { logo: "/img/logo/association8.png", width: 150, height: 100 },
-  { logo: "/img/logo/association9.png", width: 150, height: 100 },
-  { logo: "/img/logo/association10.png", width: 150, height: 100 },
-  { logo: "/img/logo/association11.png", width: 150, height: 100 },
-  { logo: "/img/logo/association12.png", width: 150, height: 100 },
-  { logo: "/img/logo/regulator1.png", width: 80, height: 100 },
-  { logo: "/img/logo/regulator2.png", width: 150, height: 100 },
-  { logo: "/img/logo/regulator3.png", width: 110, height: 100 },
-];
 
 export default function Home() {
   const openChatbot = () => {
