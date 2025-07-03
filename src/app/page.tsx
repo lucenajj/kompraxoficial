@@ -15,8 +15,12 @@ import SlideContent from "./components/hero-componets/slideContent";
 import { IoMdPause } from "react-icons/io";
 import { FaPlay } from "react-icons/fa6";
 
-import WhatsAppButton from "./components/WhatsAppButton";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
+
+const WhatsAppButton = dynamic(() => import('./components/WhatsAppButton'), {
+  ssr: false,
+});
 
 import { FaCheck } from "react-icons/fa6";
 
@@ -418,170 +422,15 @@ export default function Home() {
 
         </Swiper>
 
-        <button
-          onClick={toggleAutoplay}
-          className="absolute py-4 cursor-pointer text-[28px] z-[8000] bottom-[-10px] sm:bottom-[55px] lg:bottom-[-25px] right-5 sm:right-16 bg-gray-700 text-[#ffffff] px-4 rounded-full font-semibold shadow-md transition-all duration-300 ease-in-out hover:bg-gray-600"
-        >
-          {isPlaying ? <IoMdPause /> : <FaPlay className="pl-[2px]"/>}
-        </button>
-      </section>
-
-      <section className="py-16 bg-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
-            Associações e agências reguladoras que <span className="text-[#598EC2]">aprovam</span> nosso sistema
-          </h2>
-        </div>
-
-        {/* Associações Beneficiadas */}
-        <div className="mt-12 max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6  mt-6 max-w-6xl mx-auto">
-            {associations.map((assoc, index) => (
-              <div key={index} className="justify-center p-4 rounded-lg flex flex-col items-center text-center">
-                <Image
-                  src={assoc.logo}
-                  alt={`Logo ${index + 1}`}
-                  width={assoc.width} 
-                  height={assoc.height}
-                  className="mx-auto"
-                />
-              </div>
-            ))}
-          </div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <button
+            onClick={toggleAutoplay}
+            className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30 transition-all duration-300"
+          >
+            {isPlaying ? <IoMdPause size={20} /> : <FaPlay size={20} />}
+          </button>
         </div>
       </section>
-
-      {/* Seção Planos e Preços */}
-      <section id="planos" className="py-16 px-[5%] bg-white text-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-8">
-            Veja nossos planos e descubra qual melhor se encaixa nas necessidades da sua associação
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
-          {[
-            {
-              name: "Padrão",
-              color: "#A3CFF5",
-              events: "<b>De 1 a 50 Eventos Disponíveis</b>",
-              benefits: [
-                "Automação de orçamentos",
-                "Geração de pedidos em 1 clique",
-                "Importação de XMLs de orçamentos",
-                "Suporte online e humano",
-              ],
-              oldPrice: 1200,
-              addPrice: "+ 69,90 por evento.",
-              newPrice: 990,
-            },
-            {
-              name: "Profissional",
-              color: "#2264D1",
-              events: "<b>De 51 a 99 Eventos Disponíveis</b>",
-              benefits: [
-                "Todas as funções do Padrão",
-                "Dashboards financeiros dinâmicos",
-                "Controle de devoluções e créditos",
-                "Limite de compras sem supervisão",
-              ],
-              oldPrice: 1550,
-              newPrice: 1325,
-            },
-            {
-              name: "Premium",
-              color: "#7D3AC1",
-              events: "<b>De 100 a 250 Eventos Disponíveis</b>",
-              benefits: [
-                "Todas as funções do Profissional",
-                "Análise avançada de fornecedores",
-                "Integração com múltiplos sistemas",
-                "Relatórios customizados",
-              ],
-              oldPrice: 2300,
-              newPrice: 1975,
-            },
-            {
-              name: "Exclusivo",
-              color: "#D4AF37",
-              events: "<b>Eventos ilimitados (sob medida)</b>",
-              benefits: [
-                "Plano personalizado para grandes associações",
-                "Desenvolvimento de funcionalidades sob medida",
-                "Atendimento prioritário 24/7",
-                "Consultoria estratégica especializada",
-              ],
-              oldPrice: null,
-              newPrice: null,
-              customMessage: "Solicite um orçamento exclusivo.",
-            },
-          ].map((plan, index) => (
-            <div
-              key={index}
-              className="rounded-lg shadow-lg p-4 sm:p-6 flex flex-col text-center border-2"
-              style={{ borderColor: plan.color }}
-            >
-              {/* Nome do plano com cor personalizada */}
-              <h3
-                className="text-[20px] sm:text-lg font-semibold mb-3 sm:mb-4"
-                style={{ color: plan.color }}
-              >
-                {plan.name}
-              </h3>
-
-              {/* Eventos (centralizado, sem ícone) */}
-              <p
-                className="text-gray-800 text-sm sm:text-base font-semibold mb-2 text-center"
-                dangerouslySetInnerHTML={{ __html: plan.events }}
-              />
-
-              {/* Lista de Benefícios */}
-              <ul className="flex-1 space-y-2 text-gray-700">
-                {plan.benefits.map((benefit, i) => (
-                  <li key={i} className="flex text-left items-center gap-2">
-                    <span className="text-[14px] sm:text-[17px] text-green-500">
-                      <FaCheck />
-                    </span>
-                    <span className="text-sm sm:text-base">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Preço ou Consulta Sob Medida */}
-              <div className="mt-4">
-                {plan.oldPrice && plan.newPrice ? (
-                  <>
-                    <p className="text-sm sm:text-base text-gray-800 line-through">
-                      De <span className="text-red-500 font-semibold">R${plan.oldPrice}</span>
-                    </p>
-                    <p className="text-lg sm:text-md font-bold text-green-600">
-                      <span className="text-gray-800">Por apenas </span>R${plan.newPrice}
-                      <span className="text-[13px] text-gray-800">/Mês</span>
-                      <br />
-                      {plan.addPrice}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-lg sm:text-md font-bold text-gray-800">{plan.customMessage}</p>
-                )}
-              </div>
-
-              {/* Botão de Assinatura */}
-              <Link
-                href="#chatbot"
-                onClick={(e) => {
-                  e.preventDefault();
-                  openChatbot();
-                }}
-                className="mt-4 bg-gray-900 text-white px-5 sm:px-6 py-2 rounded font-semibold transition-all duration-300 hover:bg-gray-700 text-sm sm:text-base"
-              >
-                Testar
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
 
       <Footer />
       <WhatsAppButton />

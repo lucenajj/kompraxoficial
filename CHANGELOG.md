@@ -7,6 +7,14 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/spec/v2.0.
 
 ---
 
+## [1.2.1] - 2025-07-03
+
+### 🐛 **Corrigido**
+- **Erro de Build:** Corrigido o erro fatal de compilação "Module not found" que impedia a aplicação de iniciar. O problema foi causado pela ausência dos componentes `Button` e `Card`, que foram reinstalados manualmente.
+- **Erro de Hidratação:** Corrigido o erro de hidratação do React (`Hydration failed`) que ocorria no lado do cliente. O componente `WhatsAppButton` foi configurado para ser renderizado apenas no cliente (`ssr: false`), garantindo a consistência entre o conteúdo do servidor e do navegador.
+
+---
+
 ## [1.2.0] - 2025-06-25
 
 ### ✨ **Adicionado**

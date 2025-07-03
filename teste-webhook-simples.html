@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste Webhook N8N - Diagnóstico</title>
+    <title>Depuração Avançada de Webhook</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 5px; font-size: 16px; }
-        button:hover { background: #0056b3; }
-        .result { background: #f8f9fa; padding: 20px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #007bff; }
-        .error { border-left-color: #dc3545; background: #f8d7da; color: #721c24; }
-        .success { border-left-color: #28a745; background: #d4edda; color: #155724; }
-        .warning { border-left-color: #ffc107; background: #fff3cd; color: #856404; }
-        pre { white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 13px; }
-        h3 { margin-top: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; background: #f0f2f5; color: #1c1e21; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        button { background: #1877f2; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 5px; font-size: 16px; font-weight: bold; transition: background-color 0.2s; }
+        button:hover { background: #166fe5; }
+        .result { background: #f7f7f7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid; white-space: pre-wrap; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 13px; line-height: 1.6; }
+        .error { border-left-color: #fa383e; background: #fff5f5; color: #721c24; }
+        .success { border-left-color: #31a24c; background: #f6fff8; color: #155724; }
+        .warning { border-left-color: #f5a623; background: #fffbeb; color: #856404; }
+        h1, h3 { color: #050505; }
+        h3 { border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-top: 0; }
+        code { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔧 Diagnóstico Webhook N8N - KompraX</h1>
-        <p><strong>URL a ser testada:</strong> <code>https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat</code></p>
+        <h1>🐞 Depuração Avançada de Webhook</h1>
+        <p><strong>URL a ser testada:</strong> <code>https://webhookub.mooveinsd.com.br/webhook/chat</code></p>
         
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0;">
-            <h3>🎯 Objetivo do Teste</h3>
-            <p>Este teste verifica se o problema está no <strong>código da aplicação</strong> ou na <strong>configuração do N8N</strong>.</p>
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #cce5ff;">
+            <h3 style="border: none;">🎯 Objetivo do Teste</h3>
+            <p>Este teste executa uma análise profunda da comunicação com o webhook para identificar o ponto exato da falha.</p>
         </div>
 
-        <button onclick="testarWebhookCompleto()">🧪 Teste Completo do Webhook</button>
-        <button onclick="testarConectividade()">🌐 Teste de Conectividade</button>
+        <button onclick="testarWebhookCompleto()">🔬 Executar Teste Detalhado</button>
+        <button onclick="testarConectividade()">🌐 Testar Conectividade (OPTIONS)</button>
         <button onclick="limparResultados()">🗑️ Limpar Resultados</button>
         
         <div id="resultados"></div>
@@ -45,11 +46,8 @@
             else if (tipo === 'warning') classe += ' warning';
             
             div.className = classe;
-            div.innerHTML = `
-                <h3>${titulo}</h3>
-                <pre>${conteudo}</pre>
-            `;
-            resultadosDiv.appendChild(div);
+            div.innerHTML = `<h3>${titulo}</h3><pre>${conteudo}</pre>`;
+            resultadosDiv.prepend(div); // Adiciona no início
         }
         
         function limparResultados() {
@@ -57,145 +55,112 @@
         }
         
         async function testarConectividade() {
-            const url = 'https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat';
-            
-            adicionarResultado('🌐 Testando Conectividade Básica...', `Verificando se o endpoint está respondendo:\n${url}`);
+            const url = 'https://webhookub.mooveinsd.com.br/webhook/chat';
+            adicionarResultado('🌐 Testando Conectividade (Requisição OPTIONS)...', `Verificando se o servidor responde à requisição de pre-flight CORS para a URL:\n${url}`);
             
             try {
-                const response = await fetch(url, {
-                    method: 'OPTIONS',
-                    headers: {
-                        'Origin': window.location.origin
-                    }
-                });
-                
+                const response = await fetch(url, { method: 'OPTIONS', headers: { 'Origin': window.location.origin } });
                 adicionarResultado('✅ Conectividade OK', 
                     `Status: ${response.status}\n` +
-                    `Headers CORS: ${response.headers.get('access-control-allow-origin') || 'Não configurado'}\n` +
-                    `Headers permitidos: ${response.headers.get('access-control-allow-methods') || 'Não especificado'}`,
+                    `Headers de resposta CORS:\n` +
+                    `  Access-Control-Allow-Origin: ${response.headers.get('access-control-allow-origin') || 'Não configurado'}\n` +
+                    `  Access-Control-Allow-Methods: ${response.headers.get('access-control-allow-methods') || 'Não especificado'}`,
                     'success'
                 );
-                
             } catch (error) {
-                adicionarResultado('❌ Falha na Conectividade', 
-                    `Erro: ${error.message}\n\n` +
-                    `Possíveis causas:\n` +
-                    `• N8N está offline ou inacessível\n` +
-                    `• URL incorreta\n` +
-                    `• Bloqueio de firewall\n` +
-                    `• Problema de DNS\n` +
-                    `• Configuração CORS restritiva`,
+                adicionarResultado(`❌ Falha na Conectividade: ${error.name}`, 
+                    `----- MENSAGEM DO ERRO -----\n${error.message}\n\n` +
+                    `----- DIAGNÓSTICO -----\n` +
+                    `Não foi possível nem mesmo iniciar a comunicação.\n` +
+                    `Isso indica um problema de rede ou CORS fundamental.\n` +
+                    `Verifique o console do navegador (F12) para detalhes sobre o bloqueio.\n\n`+
+                    `----- STACK TRACE -----\n${error.stack || 'Não disponível'}`,
                     'error'
                 );
             }
         }
         
         async function testarWebhookCompleto() {
-            const url = 'https://webhookub.mooveinsd.com.br/webhook/9bfc9c55-93c6-474f-943b-42788b1d5826/chat';
+            const url = 'https://webhookub.mooveinsd.com.br/webhook/chat';
             const payload = {
-                // Payload usado no chat
                 message: 'Teste de diagnóstico do webhook',
                 timestamp: new Date().toISOString(),
                 chatId: `test_${Date.now()}`,
-                source: 'diagnostico_webapp',
-                // Payload usado no formulário
-                selectedServicePlan: 'Premium',
-                userName: 'Teste Diagnóstico',
-                userEnterprise: 'Empresa Teste',
-                userNumber: '48999887766',
-                userMessage: 'Teste completo de diagnóstico do webhook N8N',
-                promoActive: true
+                source: 'diagnostico_webapp'
             };
             
-            adicionarResultado('🧪 Enviando Payload de Teste...', 
-                `URL: ${url}\n\n` +
-                `Payload:\n${JSON.stringify(payload, null, 2)}`
-            );
+            adicionarResultado('🔬 Executando Teste Detalhado...', `URL: ${url}\n\nPayload:\n${JSON.stringify(payload, null, 2)}`);
             
             try {
                 const startTime = performance.now();
                 
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'KompraX-Diagnostico/1.0',
-                        'Origin': window.location.origin
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Origin': window.location.origin },
                     body: JSON.stringify(payload),
-                    signal: AbortSignal.timeout(30000) // 30 segundos
+                    signal: AbortSignal.timeout(30000)
                 });
                 
-                const endTime = performance.now();
-                const responseTime = Math.round(endTime - startTime);
-                
-                // Tentar capturar resposta como texto primeiro
+                const responseTime = Math.round(performance.now() - startTime);
                 const responseText = await response.text();
+                const responseHeaders = [...response.headers.entries()].map(([k, v]) => `  ${k}: ${v}`).join('\n');
                 
                 if (response.ok) {
-                    // Tentar parsear como JSON
                     let responseData;
-                    try {
-                        responseData = JSON.parse(responseText);
-                    } catch {
-                        responseData = responseText;
-                    }
+                    try { responseData = JSON.parse(responseText); } catch { responseData = responseText; }
                     
                     adicionarResultado('✅ Webhook Funcionando!', 
                         `Status: ${response.status} ${response.statusText}\n` +
-                        `Tempo de resposta: ${responseTime}ms\n` +
-                        `Headers de resposta:\n${[...response.headers.entries()].map(([k,v]) => `  ${k}: ${v}`).join('\n')}\n\n` +
-                        `Resposta:\n${typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData}`,
+                        `Tempo de resposta: ${responseTime}ms\n\n` +
+                        `----- HEADERS DA RESPOSTA -----\n${responseHeaders}\n\n` +
+                        `----- CORPO DA RESPOSTA -----\n${typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData}`,
                         'success'
                     );
                 } else {
                     adicionarResultado('❌ Webhook com Erro HTTP', 
                         `Status: ${response.status} ${response.statusText}\n` +
-                        `Tempo de resposta: ${responseTime}ms\n` +
-                        `Resposta:\n${responseText}\n\n` +
-                        `Possíveis causas:\n` +
-                        `• Workflow N8N não configurado corretamente\n` +
-                        `• Payload não aceito pelo N8N\n` +
-                        `• Erro interno no workflow`,
+                        `Tempo de resposta: ${responseTime}ms\n\n` +
+                        `----- HEADERS DA RESPOSTA -----\n${responseHeaders}\n\n` +
+                        `----- CORPO DA RESPOSTA -----\n${responseText}\n\n` +
+                        `----- DIAGNÓSTICO -----\n` +
+                        `O servidor N8N recebeu a requisição, mas respondeu com um erro.\n` +
+                        `Causas prováveis:\n` +
+                        `• Erro interno no workflow do N8N (verifique os logs de execução no N8N).\n` +
+                        `• O payload enviado não é o esperado pelo workflow.\n` +
+                        `• Problema de permissão ou configuração em um dos nós do workflow.`,
                         'error'
                     );
                 }
                 
             } catch (error) {
-                if (error.name === 'TimeoutError') {
-                    adicionarResultado('❌ Timeout do Webhook', 
-                        `Erro: Timeout após 30 segundos\n\n` +
-                        `Possíveis causas:\n` +
-                        `• N8N está sobrecarregado\n` +
-                        `• Workflow muito lento\n` +
-                        `• Problema de conectividade`,
-                        'error'
-                    );
+                let diag = '';
+                if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+                    diag = `A requisição demorou mais de 30 segundos e foi abortada.\n` +
+                           `Causas prováveis:\n` +
+                           `• O workflow do N8N está muito lento ou em loop.\n` +
+                           `• Problemas de conectividade entre o navegador e o servidor.\n` +
+                           `• O servidor N8N está sobrecarregado.`;
+                } else if (error.name === 'TypeError') {
+                    diag = `O navegador bloqueou a requisição antes mesmo de enviá-la.\n` +
+                           `Causa mais provável: **Problema de CORS**.\n` +
+                           `O servidor N8N não está retornando o cabeçalho 'Access-Control-Allow-Origin' corretamente para o seu domínio.\n` +
+                           `Abra o console do navegador (F12) para ver a mensagem de erro exata.`;
                 } else {
-                    adicionarResultado('❌ Erro no Webhook', 
-                        `Erro: ${error.message}\n\n` +
-                        `Tipo do erro: ${error.name}\n\n` +
-                        `Diagnóstico:\n` +
-                        `• Se "TypeError: Failed to fetch": problema de CORS ou conectividade\n` +
-                        `• Se "NetworkError": N8N inacessível\n` +
-                        `• Se outros erros: verificar console do navegador`,
-                        'error'
-                    );
+                    diag = `Ocorreu um erro de rede inesperado.\n` +
+                           `Causas prováveis:\n` +
+                           `• O servidor N8N pode estar offline ou inacessível.\n` +
+                           `• Um firewall, antivírus ou extensão de navegador está bloqueando a conexão.\n` +
+                           `• Problemas de DNS.`;
                 }
+
+                adicionarResultado(`❌ Erro Crítico de Conexão: ${error.name}`, 
+                    `----- MENSAGEM DO ERRO -----\n${error.message}\n\n` +
+                    `----- DIAGNÓSTICO DETALHADO -----\n${diag}\n\n` +
+                    `----- STACK TRACE -----\n${error.stack || 'Não disponível'}`,
+                    'error'
+                );
             }
         }
-        
-        // Teste automático ao carregar
-        window.onload = function() {
-            adicionarResultado('🚀 Diagnóstico Iniciado', 
-                `Esta página testará a conectividade com o webhook N8N.\n\n` +
-                `Ordem recomendada:\n` +
-                `1. Teste de Conectividade (verificar se o endpoint responde)\n` +
-                `2. Teste Completo (enviar payload real)\n\n` +
-                `Observação: Se ambos falharem, o problema está no N8N.\n` +
-                `Se apenas o código da aplicação falha, o problema está na implementação.`
-            );
-        };
     </script>
 </body>
 </html> 

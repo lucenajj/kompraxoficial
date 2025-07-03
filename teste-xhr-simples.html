@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <title>Exemplo CORS</title>
+</head>
+
+<body>
+    <script>
+        const xhr = new XMLHttpRequest();
+        // Configuração do CORS
+
+        // Definir o tipo de solicitação e a URL do endpoint
+        xhr.open('POST', 'https://webhookub.mooveinsd.com.br/webhook/chat');
+
+        // Definir o tipo de conteúdo errado, ele nao aceita JSON
+        // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        // Tratar a resposta
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                alert("Enviou");
+            }
+            else {
+                alert('Erro na requisição: ' + xhr.statusText);
+            }
+        };
+
+        let objeto = {
+            nome: "Luiz",
+            idade: 36,
+            email: "luizeof@gmail.com"
+        }
+
+        // Enviar a solicitação
+        xhr.send( JSON.stringify(objeto) );
+    </script>
+</body>
+
+</html> 

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de CORS - KompraX Webhook</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 5px; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .result { background: #f8f9fa; padding: 20px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; color: #721c24; }
+        .success { border-left-color: #28a745; background: #d4edda; color: #155724; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; color: #856404; }
+        pre { white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 13px; }
+        h3 { margin-top: 0; }
+        textarea { width: 100%; height: 120px; font-family: monospace; margin-bottom: 10px; padding: 10px; }
+        select { padding: 8px; margin-bottom: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Teste de CORS - KompraX Webhook</h1>
+        
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <h3>ℹ️ Sobre este teste</h3>
+            <p>Esta página testa diferentes configurações de CORS para identificar o problema de comunicação com o webhook.</p>
+        </div>
+
+        <div>
+            <h3>1️⃣ Configuração do Teste</h3>
+            
+            <label for="webhookUrl"><b>URL do Webhook:</b></label>
+            <select id="webhookUrl">
+                <option value="https://webhookub.mooveinsd.com.br/webhook/1ba39b1d-f362-4ae6-828c-6589dfb117c3/chat">Webhook KomprAX Chat (NOVO)</option>
+                <option value="https://webhookub.mooveinsd.com.br/webhook/Pocox5Pro">Webhook Pocox5Pro (antigo)</option>
+                <option value="https://webhookub.mooveinsd.com.br/webhook-teste/Pocox5Pro">Webhook Teste Pocox5Pro (antigo)</option>
+                <option value="https://webhookub.mooveinsd.com.br/webhook/1a7ff005-dbd8-40fc-a0f7-2c675a2f3c94/chat">Webhook KomprAX Chat (antigo)</option>                
+                <option value="custom">URL Personalizada...</option>
+            </select>
+            
+            <div id="customUrlContainer" style="display: none;">
+                <label for="customUrl"><b>URL Personalizada:</b></label>
+                <input type="text" id="customUrl" style="width: 100%; padding: 8px; margin: 5px 0 10px 0;" placeholder="https://...">
+            </div>
+            
+            <label for="contentType"><b>Content-Type:</b></label>
+            <select id="contentType">
+                <option value="application/json">application/json</option>
+                <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+                <option value="text/plain">text/plain</option>
+                <option value="none">Nenhum (não enviar cabeçalho)</option>
+            </select>
+            
+            <label for="payload"><b>Payload (JSON):</b></label>
+            <textarea id="payload">{
+  "message": "Testando CORS e comunicação com webhook",
+  "nome": "Teste KomprAX",
+  "timestamp": "2023-06-27T12:34:56Z",
+  "source": "teste-cors-html"
+}</textarea>
+            
+            <h3>2️⃣ Métodos de Teste</h3>
+            <button onclick="testarXHR()">🧪 Testar com XMLHttpRequest</button>
+            <button onclick="testarFetch()">🌐 Testar com Fetch API</button>
+            <button onclick="limparResultados()">🗑️ Limpar Resultados</button>
+        </div>
+        
+        <div id="resultados"></div>
+    </div>
+
+    <script>
+        const resultadosDiv = document.getElementById('resultados');
+        const webhookUrlSelect = document.getElementById('webhookUrl');
+        const customUrlContainer = document.getElementById('customUrlContainer');
+        const customUrlInput = document.getElementById('customUrl');
+        
+        // Mostrar/ocultar campo URL personalizada
+        webhookUrlSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customUrlContainer.style.display = 'block';
+            } else {
+                customUrlContainer.style.display = 'none';
+            }
+        });
+        
+        function getWebhookUrl() {
+            if (webhookUrlSelect.value === 'custom') {
+                return customUrlInput.value.trim();
+            }
+            return webhookUrlSelect.value;
+        }
+        
+        function getContentType() {
+            return document.getElementById('contentType').value;
+        }
+        
+        function getPayload() {
+            try {
+                const payloadText = document.getElementById('payload').value;
+                // Verificar se é JSON válido
+                JSON.parse(payloadText);
+                return payloadText;
+            } catch (e) {
+                alert("O payload não é um JSON válido. Por favor, corrija o formato.");
+                return null;
+            }
+        }
+        
+        function adicionarResultado(titulo, conteudo, tipo = 'info') {
+            const div = document.createElement('div');
+            let classe = 'result';
+            if (tipo === 'error') classe += ' error';
+            else if (tipo === 'success') classe += ' success';
+            else if (tipo === 'warning') classe += ' warning';
+            
+            div.className = classe;
+            div.innerHTML = `
+                <h3>${titulo}</h3>
+                <pre>${conteudo}</pre>
+            `;
+            resultadosDiv.prepend(div); // Adiciona no início para mostrar o mais recente primeiro
+        }
+        
+        function limparResultados() {
+            resultadosDiv.innerHTML = '';
+        }
+        
+        // Teste usando XMLHttpRequest (como no exemplo original)
+        function testarXHR() {
+            const url = getWebhookUrl();
+            const contentType = getContentType();
+            const payload = getPayload();
+            
+            if (!url) {
+                alert("Por favor, informe uma URL válida.");
+                return;
+            }
+            
+            if (!payload) return; // O alerta já foi mostrado na função getPayload
+            
+            adicionarResultado('🧪 Testando com XMLHttpRequest', 
+                `URL: ${url}\n` +
+                `Content-Type: ${contentType === 'none' ? 'Não especificado' : contentType}\n` +
+                `Payload: ${payload}`
+            );
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                // Configurar para que possamos capturar todos os detalhes da resposta
+                xhr.open('POST', url);
+                
+                // Adicionar cabeçalho Content-Type se especificado
+                if (contentType !== 'none') {
+                    xhr.setRequestHeader('Content-Type', contentType);
+                }
+                
+                // Para fins de diagnóstico, definir um timeout
+                xhr.timeout = 10000; // 10 segundos
+                
+                // Manipular eventos
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // Sucesso
+                        let responseText = xhr.responseText;
+                        try {
+                            // Tentar formatar como JSON para melhor visualização
+                            const json = JSON.parse(responseText);
+                            responseText = JSON.stringify(json, null, 2);
+                        } catch (e) {
+                            // Não é JSON, manter como texto
+                        }
+                        
+                        adicionarResultado('✅ XMLHttpRequest: Sucesso!', 
+                            `Status: ${xhr.status}\n` +
+                            `Headers de resposta:\n${xhr.getAllResponseHeaders()}\n\n` +
+                            `Resposta:\n${responseText}`,
+                            'success'
+                        );
+                    } else {
+                        // Erro com resposta do servidor
+                        adicionarResultado('❌ XMLHttpRequest: Erro HTTP', 
+                            `Status: ${xhr.status} ${xhr.statusText}\n` +
+                            `Headers de resposta:\n${xhr.getAllResponseHeaders()}\n\n` +
+                            `Resposta:\n${xhr.responseText}`,
+                            'error'
+                        );
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    adicionarResultado('❌ XMLHttpRequest: Erro de Rede', 
+                        `Erro de conexão. Isso geralmente indica um problema CORS.\n\n` +
+                        `Possíveis causas:\n` +
+                        `• O servidor não permite requisições de origens diferentes (CORS)\n` +
+                        `• URL incorreta ou servidor offline\n` +
+                        `• Bloqueio por firewall\n\n` +
+                        `Detalhes técnicos: Verificar console do navegador (F12)`,
+                        'error'
+                    );
+                };
+                
+                xhr.ontimeout = function() {
+                    adicionarResultado('⚠️ XMLHttpRequest: Timeout', 
+                        `A requisição excedeu o tempo limite de 10 segundos.\n\n` +
+                        `Possíveis causas:\n` +
+                        `• Servidor lento ou sobrecarregado\n` +
+                        `• Problemas de rede\n` +
+                        `• O webhook está processando a solicitação por muito tempo`,
+                        'warning'
+                    );
+                };
+                
+                // Enviar a requisição
+                xhr.send(payload);
+                
+            } catch (error) {
+                adicionarResultado('❌ XMLHttpRequest: Erro JavaScript', 
+                    `Erro ao executar a requisição: ${error.message}\n\n` +
+                    `Stack trace:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+        
+        // Teste usando Fetch API (mais moderno)
+        async function testarFetch() {
+            const url = getWebhookUrl();
+            const contentType = getContentType();
+            const payload = getPayload();
+            
+            if (!url) {
+                alert("Por favor, informe uma URL válida.");
+                return;
+            }
+            
+            if (!payload) return; // O alerta já foi mostrado na função getPayload
+            
+            adicionarResultado('🌐 Testando com Fetch API', 
+                `URL: ${url}\n` +
+                `Content-Type: ${contentType === 'none' ? 'Não especificado' : contentType}\n` +
+                `Payload: ${payload}`
+            );
+            
+            try {
+                // Configurar headers
+                const headers = new Headers();
+                if (contentType !== 'none') {
+                    headers.append('Content-Type', contentType);
+                }
+                
+                const startTime = performance.now();
+                
+                // Enviar a requisição
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: payload,
+                    signal: AbortSignal.timeout(10000) // 10 segundos
+                });
+                
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                
+                // Obter texto da resposta
+                const responseText = await response.text();
+                
+                // Formatar resposta
+                let formattedResponse = responseText;
+                try {
+                    // Tentar formatar como JSON se for JSON
+                    const json = JSON.parse(responseText);
+                    formattedResponse = JSON.stringify(json, null, 2);
+                } catch (e) {
+                    // Não é JSON, manter como texto
+                }
+                
+                // Extrair headers para exibir
+                const responseHeaders = [];
+                response.headers.forEach((value, key) => {
+                    responseHeaders.push(`${key}: ${value}`);
+                });
+                
+                if (response.ok) {
+                    adicionarResultado('✅ Fetch API: Sucesso!', 
+                        `Status: ${response.status} ${response.statusText}\n` +
+                        `Tempo de resposta: ${responseTime}ms\n` +
+                        `Headers de resposta:\n${responseHeaders.join('\n')}\n\n` +
+                        `Resposta:\n${formattedResponse}`,
+                        'success'
+                    );
+                } else {
+                    adicionarResultado('❌ Fetch API: Erro HTTP', 
+                        `Status: ${response.status} ${response.statusText}\n` +
+                        `Tempo de resposta: ${responseTime}ms\n` +
+                        `Headers de resposta:\n${responseHeaders.join('\n')}\n\n` +
+                        `Resposta:\n${formattedResponse}`,
+                        'error'
+                    );
+                }
+                
+            } catch (error) {
+                if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+                    adicionarResultado('⚠️ Fetch API: Timeout', 
+                        `A requisição excedeu o tempo limite de 10 segundos.\n\n` +
+                        `Possíveis causas:\n` +
+                        `• Servidor lento ou sobrecarregado\n` +
+                        `• Problemas de rede\n` +
+                        `• O webhook está processando a solicitação por muito tempo`,
+                        'warning'
+                    );
+                } else {
+                    adicionarResultado('❌ Fetch API: Erro', 
+                        `Erro ao executar a requisição: ${error.message}\n\n` +
+                        `Tipo do erro: ${error.name}\n\n` +
+                        `Detalhes:\n` +
+                        `• Se "TypeError: Failed to fetch": provavelmente um problema CORS\n` +
+                        `• Se "NetworkError": servidor inacessível ou bloqueio de rede\n` +
+                        `• Outros detalhes no console do navegador (F12)`,
+                        'error'
+                    );
+                }
+            }
+        }
+        
+        // Adicionar informação inicial
+        window.onload = function() {
+            adicionarResultado('ℹ️ Instruções', 
+                `Este teste ajuda a identificar problemas CORS na comunicação com webhooks.\n\n` +
+                `Como usar:\n` +
+                `1. Selecione a URL do webhook\n` +
+                `2. Escolha o Content-Type apropriado\n` +
+                `3. Ajuste o payload (se necessário)\n` +
+                `4. Teste com XMLHttpRequest (método tradicional) e Fetch API (moderno)\n\n` +
+                `Dica: XMLHttpRequest é usado no exemplo original fornecido.`
+            );
+        };
+    </script>
+</body>
+</html>
